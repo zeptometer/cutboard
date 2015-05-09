@@ -25,8 +25,15 @@
 (defun lookup-lenv (machine i j)
   (aref (nth i (machine-lenv machine)) j))
 
+(defun set-lenv (machine i j val)
+  (setf (aref (nth i (machine-lenv machine)) j)
+	val))
+
 (defun lookup-genv (machine sym)
-  (cdr (assoc sym (machine-genv machine))))
+  (gethash sym (machine-genv machine)))
+
+(defun set-genv (machine sym val)
+  (setf (gethash sym (machine-genv machine)) val))
 
 (defun jump-to (machine label)
   (setf (machine-code machine) (gethash label (machine-table machine))))
@@ -63,15 +70,18 @@
   (destructuring-bind (head &rest rest) (machine-code machine)
     (let ((halt (equal '(:halt) head)))
       (setf (machine-code machine) rest)
-      (format t "~a~%" head)
       (inst-bind head
         ;; control
         ((:const data)
          (push data (machine-data machine)))
         ((:lvar i j)
          (push (lookup-lenv machine i j) (machine-data machine)))
+	((:lset i j)
+	 (set-lenv machine i j (pop (machine-data machine))))
         ((:gvar sym)
          (push (lookup-genv machine sym) (machine-data machine)))
+	((:gset sym)
+	 (set-genv machine sym (pop (machine-data machine))))
         ((:pop)
          (pop (machine-data machine)))
         ((:tjump label)
