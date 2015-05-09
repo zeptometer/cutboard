@@ -15,7 +15,7 @@
 (defparameter *label-id* 0)
 
 (defun gen-label (str)
-  (prog1 (gensym  (format nil "~a~a" str *label-id*))
+  (prog1 (intern (format nil "__~a~a" str *label-id*) :keyword)
     (incf *label-id*)))
 
 ;;; env
@@ -105,8 +105,8 @@
 		(comp-args (cdr body) env)))))
 
 (defun comp-if (pred then else env)
-  (let ((label1 (gen-label "if-then"))
-        (label2 (gen-label "if-else")))
+  (let ((label1 (gen-label "THEN"))
+        (label2 (gen-label "ELSE")))
     (seq (comp pred env)
          (gen :fjump label1)
          (comp then env)
@@ -122,7 +122,7 @@
               fn-code))))
 
 (defun make-function (args body env)
-  (let ((fn (gen-label "func"))
+  (let ((fn (gen-label "FUNC"))
         (new-env (extend-env env args)))
     (multiple-value-bind (c1 c2) (seq (label fn)
                                       (gen :args (length args))

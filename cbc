@@ -1,0 +1,31 @@
+#!/usr/bin/sbcl --script
+
+(require :asdf)
+(asdf:load-system :cutboard)
+(asdf:load-system :iterate)
+
+(defpackage :script-env
+  (:use :common-lisp
+        :iterate
+        :cutboard-compiler))
+(in-package :script-env)
+
+(defun read-code (is)  
+  (cons 'begin
+        (iter (for x next (read is nil nil))
+              (while x)
+              (collect x))))
+
+(defun run-compiler (is os)
+  (format os "~{~s~%~}~%" (comp-top (read-code is))))
+
+(unless (= (length sb-ext:*posix-argv*) 3)
+  (format *error-output* "usage: cbc <input> <output>~%")
+  (sb-ext:exit))
+
+(let ((in  (second sb-ext:*posix-argv*))
+      (out (third sb-ext:*posix-argv*)))
+  (with-open-file (is in :direction :input)
+    (with-open-file (os out :direction :output
+                        :if-exists :supersede)
+      (run-compiler is os))))
