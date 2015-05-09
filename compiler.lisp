@@ -2,7 +2,9 @@
   (:use :common-lisp
         :iterate)
   (:export :comp-top
-           :asm))
+	   :asm
+	   :begin
+	   :define))
 
 (in-package :cutboard-compiler)
 
@@ -63,6 +65,11 @@
      (gen :const code))
     (t
      (case (first code)
+       (define (destructuring-bind (_ sym value) code
+		 (declare (ignore _))
+		 (seq (comp value env)
+		      (gen :gset sym)
+		      (gen :const sym))))
        (quote  (gen :const (second code)))
        (begin  (comp-begin (rest code) env))
        (if     (destructuring-bind (_ pred then else) code
@@ -98,7 +105,7 @@
 		(comp-args (cdr body) env)))))
 
 (defun comp-if (pred then else env)
-  (let ((label1 (gen-label "if-body"))
+  (let ((label1 (gen-label "if-then"))
         (label2 (gen-label "if-else")))
     (seq (comp pred env)
          (gen :fjump label1)
