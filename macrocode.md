@@ -49,9 +49,18 @@ labelへ無条件分岐
 プログラムの終了
 
 ## 算術命令
+(:+)
+(:-)
+(:=)
+(:shl)
+(:shr)
 
+## cons関係命令
+(:cons)
+(:car)
+(:cdr)
 
 ## IO命令
-(print-char c)
+(print-byte c)
 
 文字を出力

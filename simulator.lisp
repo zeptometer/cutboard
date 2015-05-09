@@ -1,7 +1,6 @@
 (defpackage cutboard-simulator
   (:use :common-lisp
-        :iterate
-        :optima)
+        :iterate)
   (:export :simulate))
 
 (in-package :cutboard-simulator)
@@ -125,6 +124,28 @@
          (push (= (pop (machine-data machine))
                   (pop (machine-data machine)))
                (machine-data machine)))
+        ((:shl)
+         (push (ash (pop (machine-data machine))
+                    (pop (machine-data machine)))
+               (machine-data machine)))
+        ((:shr)
+         (push (ash (pop (machine-data machine))
+                    (- (pop (machine-data machine))))
+               (machine-data machine)))
+        ;; cons
+        ((:cons)
+         (push (cons (pop (machine-data machine))
+                     (pop (machine-data machine)))
+               (machine-data machine)))
+        ((:car)
+         (push (car (pop (machine-data machine)))
+               (machine-data machine)))
+        ((:cdr)
+         (push (cdr (pop (machine-data machine)))
+               (machine-data machine)))
+        ;; IO
+        ((:print-byte)
+         (format t "~c" (code-char (mod (pop (machine-data machine)) 256))))
         ;; others
         (:otherwise (unless (symbolp head)
                       (error "no matching instruction"))))
