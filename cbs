@@ -1,0 +1,27 @@
+#!/usr/bin/sbcl --script
+;; -*- mode: Lisp -*-
+
+(require :asdf)
+(asdf:load-systems :cutboard :iterate)
+
+(defpackage :script-env
+  (:use :common-lisp
+        :iterate
+        :cutboard-simulator))
+(in-package :script-env)
+
+(defun read-code (is)  
+  (cons 'begin
+        (iter (for x next (read is nil nil))
+              (while x)
+              (collect x))))
+
+(unless (= (length sb-ext:*posix-argv*) 2)
+  (format *error-output* "usage: cbs <input>~%")
+  (sb-ext:exit))
+
+(let ((in  (second sb-ext:*posix-argv*)))
+  (handler-case
+      (with-open-file (is in :direction :input)
+	(simulate (read-code is)))
+    (file-error (f) (format *error-output* "~a~%" f))))
