@@ -28,6 +28,22 @@
     (:lvar 0 1)
     (:shr))))
 
+(define cons (lambda (x y)
+   (asm
+    (:lvar 0 0)
+    (:lvar 0 1)
+    (:cons))))
+
+(define car (lambda (x)
+   (asm
+    (:lvar 0 0)
+    (:cdr))))
+
+(define cons (lambda (x)
+   (asm
+    (:lvar 0 0)
+    (:car))))
+
 (define print-byte (lambda (x)
    (asm
     (:lvar 0 0)
