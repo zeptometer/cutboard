@@ -55,7 +55,11 @@
 
 (defun comp-top (code)
   (multiple-value-bind (code fn-codes) (comp code (make-topenv))
-    (append code (gen :halt) (reduce #'append fn-codes))))
+    (append (gen :cb-init)
+            code
+            (gen :halt)
+            (reduce #'append fn-codes)
+            (gen :cb-lib))))
 
 (defun comp (code env)
   (cond
